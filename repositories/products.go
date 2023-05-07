@@ -11,6 +11,7 @@ type ProductRepositoryInterface interface {
 	GetProductsByCategoryID(id int) ([]model.Product, error)
 	GetAllProducts() ([]model.Product, error)
 	StoreManyProducts(products *[]model.Product) ([]model.Product, error)
+	UpdateProduct(product model.Product) (model.Product, error)
 }
 
 type ProductRepository struct {
@@ -47,7 +48,15 @@ func (pr *ProductRepository) StoreManyProducts(products *[]model.Product) ([]mod
 	}
 
 	return *newProducts, nil
+}
 
+func (pr *ProductRepository) UpdateProduct(product model.Product) (model.Product, error) {
+	var newProduct = product
+	if err := pr.db.Model(&newProduct).Updates(&newProduct).Error; err != nil {
+		return model.Product{}, err
+	}
+
+	return newProduct, nil
 }
 
 func (pr *ProductRepository) GetAllProducts() ([]model.Product, error) {

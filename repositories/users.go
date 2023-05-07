@@ -40,7 +40,7 @@ func (u *UserRepository) GetUserByID(id int) (model.User, error) {
 
 func (u *UserRepository) UpdateUser(User model.User) (model.User, error) {
 
-	if err := u.db.Model(&User).Where("id = ?", User.ID).Updates(&User).Error; err != nil {
+	if err := u.db.Model(&User).Updates(&User).Error; err != nil {
 		return model.User{}, err
 	}
 

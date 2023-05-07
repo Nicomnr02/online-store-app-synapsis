@@ -66,6 +66,14 @@ func RunServer(db *gorm.DB, mux *http.ServeMux) *http.ServeMux {
 	categoryService := services.NewCategoryService(categoryRepo, productRepo)
 	categoryAPIHandler := api.NewCategoryAPI(categoryService)
 
+	cartRepo := repositories.NewCartRepository(db)
+	cartService := services.NewCartService(cartRepo, productRepo)
+	cartAPIHandler := api.NewCartAPI(cartService)
+
+	transRepo := repositories.NewTransactionRepository(db)
+	transService := services.NewTransactionService(userRepo, productRepo, cartRepo, transRepo)
+	transAPIHandler := api.NewTransactionAPI(transService)
+
 	MuxRoute(mux, "GET", "/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte("_Synapsis Challenge_"))
@@ -85,9 +93,22 @@ func RunServer(db *gorm.DB, mux *http.ServeMux) *http.ServeMux {
 	MuxRoute(mux, "GET", "/v1/user/show/productsByCategory/on", middleware.GET(middleware.CheckSession(http.HandlerFunc(productAPIHandler.GetProductsByCategoryID))), "?category_id=")
 	MuxRoute(mux, "POST", "/v1/admin/send/products", middleware.POST(middleware.CheckSession(http.HandlerFunc(productAPIHandler.StoreManyProducts))))
 
-	MuxRoute(mux, "POST", "/v1/admin/send/categories", middleware.POST(middleware.CheckSession(http.HandlerFunc(categoryAPIHandler.StoreManyCategories))))
 	MuxRoute(mux, "GET", "/v1/user/show/categories", middleware.GET(middleware.CheckSession(http.HandlerFunc(categoryAPIHandler.GetAllCategories))))
 	MuxRoute(mux, "GET", "/v1/user/show/categoriesWithProducts", middleware.GET(middleware.CheckSession(http.HandlerFunc(categoryAPIHandler.GetAllCategoriesWithProducts))))
+	MuxRoute(mux, "POST", "/v1/admin/send/categories", middleware.POST(middleware.CheckSession(http.HandlerFunc(categoryAPIHandler.StoreManyCategories))))
+
+	MuxRoute(mux, "GET", "/v1/user/show/carts", middleware.GET(middleware.CheckSession(http.HandlerFunc(cartAPIHandler.GetAllCartsByUserID))))
+	MuxRoute(mux, "GET", "/v1/user/show/cart/on", middleware.GET(middleware.CheckSession(http.HandlerFunc(cartAPIHandler.GetCartByID))), "?cart_id=")
+	MuxRoute(mux, "POST", "/v1/user/send/cart", middleware.POST(middleware.CheckSession(http.HandlerFunc(cartAPIHandler.StoreCart))))
+	MuxRoute(mux, "PUT", "/v1/user/update/cart", middleware.PUT(middleware.CheckSession(http.HandlerFunc(cartAPIHandler.UpdateCart))))
+	MuxRoute(mux, "DELETE", "/v1/user/delete/cart/on", middleware.DELETE(middleware.CheckSession(http.HandlerFunc(cartAPIHandler.DeleteCart))), "?cart_id=")
+
+	MuxRoute(mux, "GET", "/v1/user/show/transactions", middleware.GET(middleware.CheckSession(http.HandlerFunc(transAPIHandler.GetAllTransactionsByUserID))))
+	MuxRoute(mux, "POST", "/v1/user/send/transaction", middleware.POST(middleware.CheckSession(http.HandlerFunc(transAPIHandler.CreateTransaction))))
+	MuxRoute(mux, "POST", "/v1/user/send/transactions", middleware.POST(middleware.CheckSession(http.HandlerFunc(transAPIHandler.CreateTransactions))))
+	MuxRoute(mux, "PUT", "/v1/user/update/transaction", middleware.PUT(middleware.CheckSession(http.HandlerFunc(transAPIHandler.UpdateTransaction))))
+	MuxRoute(mux, "PUT", "/v1/user/update/transactions", middleware.PUT(middleware.CheckSession(http.HandlerFunc(transAPIHandler.UpdateTransactions))))
+	MuxRoute(mux, "DELETE", "/v1/user/delete/transaction", middleware.DELETE(middleware.CheckSession(http.HandlerFunc(transAPIHandler.DeleteTransaction))))
 
 	return mux
 }

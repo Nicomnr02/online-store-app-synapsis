@@ -40,12 +40,12 @@ func (ca *CredentialAPI) Login(w http.ResponseWriter, r *http.Request) {
 		Name:    "synapsis",
 		Value:   creds.SessionToken,
 		Path:    "/",
-		Expires: time.Now().Add(2 * time.Minute),
+		Expires: time.Now().Add(5 * time.Minute),
 	}
 
 	http.SetCookie(w, cookie)
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(&model.Response{Message: "Login Success", Data: data})
+	json.NewEncoder(w).Encode(&model.Response{Message: "Login Success", Data: creds})
 
 }
 

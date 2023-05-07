@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"online_app_store/model"
 	"online_app_store/repositories"
 	"online_app_store/vars"
@@ -28,6 +29,8 @@ func (cs *CredentialService) Login(acc model.User) (model.Credential, error) {
 	if err != nil { //creds not found
 		return model.Credential{}, err
 	}
+
+	fmt.Println("money : ", existedAcc.Cash)
 
 	if acc.Username != existedAcc.Username || acc.Password != existedAcc.Password {
 		return model.Credential{}, errors.New("wrong username or password")
