@@ -14,7 +14,9 @@ FROM alpine
 WORKDIR /app
 COPY --from=builder /app/app-store-server-synapsis .
 
+ENV PORT 8000
 EXPOSE 8000
+
 CMD ["/app/app-store-server-synapsis"]
 
 
