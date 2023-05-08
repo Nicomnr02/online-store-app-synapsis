@@ -185,6 +185,12 @@ func (ts *TransactionService) UpdateTransactions(transactionsReq []model.Transac
 		return []model.Transaction{}, errors.New("not enough money")
 	}
 
+	if cash == 0 {
+		userData.Cash = -1
+	} else {
+		userData.Cash = cash
+	}
+
 	//! update user (money) if >= 0
 	userData.Cash = cash
 	if _, err := ts.userRepository.UpdateUser(userData); err != nil {
@@ -220,7 +226,6 @@ func (ts *TransactionService) UpdateTransactions(transactionsReq []model.Transac
 	}
 
 	//! update paid product stock
-
 	for _, cart := range choosenCarts {
 		prodID := cart.ProductID
 		product, err := ts.productRepository.GetProductByID(prodID)
