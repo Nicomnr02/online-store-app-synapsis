@@ -113,6 +113,23 @@ func (ts *TransactionService) UpdateTransaction(transactionReq model.Transaction
 
 	for _, cart := range cartsData {
 		if cartData.ID == cart.ID {
+
+			//! update product stock
+			prodID := cart.ProductID
+			product, err := ts.productRepository.GetProductByID(prodID)
+			if err != nil {
+				return model.Transaction{}, err
+			}
+
+			product.Stock -= cart.Quantity
+
+			updatedProduct, err := ts.productRepository.UpdateProduct(product)
+			if err != nil {
+				return model.Transaction{}, err
+			}
+
+			fmt.Println("updated stock : ", updatedProduct)
+
 			if err := ts.cartRepository.RemoveCart(cart.ID, cart.UserID); err != nil {
 				return model.Transaction{}, err
 			}
@@ -124,25 +141,6 @@ func (ts *TransactionService) UpdateTransaction(transactionReq model.Transaction
 	newTransaction, err := ts.transRepository.UpdateTransaction(transactionReq)
 	if err != nil {
 		return model.Transaction{}, err
-	}
-
-	//! update product stock
-	for _, cart := range cartsData {
-		prodID := cart.ProductID
-		product, err := ts.productRepository.GetProductByID(prodID)
-		if err != nil {
-			return model.Transaction{}, err
-		}
-
-		product.Stock -= cart.Quantity
-
-		updatedProduct, err := ts.productRepository.UpdateProduct(product)
-		if err != nil {
-			return model.Transaction{}, err
-		}
-
-		fmt.Println("updated stock : ", updatedProduct)
-
 	}
 
 	return newTransaction, nil
@@ -206,7 +204,24 @@ func (ts *TransactionService) UpdateTransactions(transactionsReq []model.Transac
 	for _, existedCart := range allCarts {
 		for _, choosenCart := range choosenCarts {
 			if existedCart.ID == choosenCart.ID {
-				err := ts.cartRepository.RemoveCart(existedCart.ID, existedCart.UserID)
+
+				//! update paid product stock
+				prodID := existedCart.ProductID
+				product, err := ts.productRepository.GetProductByID(prodID)
+				if err != nil {
+					return []model.Transaction{}, err
+				}
+
+				product.Stock -= existedCart.Quantity
+
+				updatedProduct, err := ts.productRepository.UpdateProduct(product)
+				if err != nil {
+					return []model.Transaction{}, err
+				}
+
+				fmt.Println("updated stock : ", updatedProduct)
+
+				err = ts.cartRepository.RemoveCart(existedCart.ID, existedCart.UserID)
 				if err != nil {
 					return []model.Transaction{}, err
 				}
@@ -223,25 +238,6 @@ func (ts *TransactionService) UpdateTransactions(transactionsReq []model.Transac
 			return []model.Transaction{}, err
 		}
 		updatedTransactions = append(updatedTransactions, updatedTrans)
-	}
-
-	//! update paid product stock
-	for _, cart := range choosenCarts {
-		prodID := cart.ProductID
-		product, err := ts.productRepository.GetProductByID(prodID)
-		if err != nil {
-			return []model.Transaction{}, err
-		}
-
-		product.Stock -= cart.Quantity
-
-		updatedProduct, err := ts.productRepository.UpdateProduct(product)
-		if err != nil {
-			return []model.Transaction{}, err
-		}
-
-		fmt.Println("updated stock : ", updatedProduct)
-
 	}
 
 	return updatedTransactions, nil
