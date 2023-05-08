@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	os.Setenv("DATABASE_URL", "postgres://syn_cha:1@localhost:5432/app-store-db-synapsis")
+	os.Setenv("DATABASE_URL", "postgres://postgres:secret@synapsis-db:5432/postgres")
 
 	err := utils.ConnectDB()
 	if err != nil {

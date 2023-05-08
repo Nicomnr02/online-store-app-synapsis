@@ -1,13 +1,27 @@
 version: "3.8"
-
 services:
-  app:
-    container_name: store-app-server-synapsis
-    image: 2be71fcdd15e
-    build:
-      context: .
-      target: build
-    volumes:
-      - .:/app
+  synapsis-db:
+    image: 200dbf5ad14b
     ports:
-      - 7000:7000
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+  synapsis-server:
+    image: f842722d7b27
+    ports:
+      - 8000:8000
+    environment:
+      - DATABASE_URL=postgres://postgres:secret@synapsis-db:5432/postgres
+    depends_on:
+      - synapsis-db
+    restart: "on-failure"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command: sh -c "sleep 10 && /app/app-store-server-synapsis"
