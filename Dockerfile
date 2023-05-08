@@ -1,17 +1,25 @@
-FROM golang:1.19-alpine as development
+# i make build stage first
+FROM golang:1.19-alpine AS builder
 
 RUN apk update && apk add --no-cache git
+RUN rm -rf /app/*
 
 WORKDIR /app
-# Cache and install dependencies
-COPY go.mod go.sum ./
-RUN go mod download
-# Copy app files
 COPY . .
-# Install Reflex for development
-RUN go install github.com/cespare/reflex@latest
-# Expose port
-EXPOSE 7000
-# Start app
-CMD reflex -g '*.go' go run main.go --start-service
+RUN go build -o app-store-server-synapsis main.go
+
+
+# then running the stage
+FROM alpine
+WORKDIR /app
+COPY --from=builder /app/app-store-server-synapsis .
+
+EXPOSE 8000
+CMD ["/app/app-store-server-synapsis"]
+
+
+
+
+
+
 
