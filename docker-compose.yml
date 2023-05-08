@@ -11,9 +11,9 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/data
   synapsis-server:
-    image: f842722d7b27
+    image: 13d5e0e52b8e
     ports:
-      - 8000:8000
+      - "8000:8000"
     environment:
       - DATABASE_URL=postgres://postgres:secret@synapsis-db:5432/postgres
     depends_on:

@@ -17,7 +17,8 @@ import (
 )
 
 func main() {
-	os.Setenv("DATABASE_URL", "postgres://postgres:secret@synapsis-db:5432/postgres")
+	// os.Setenv("DATABASE_URL", "postgres://postgres:secret@synapsis-db:5432/postgres")
+	os.Setenv("DATABASE_URL", "postgres://postgres:secret@34.128.95.252/postgres")
 
 	err := utils.ConnectDB()
 	if err != nil {
